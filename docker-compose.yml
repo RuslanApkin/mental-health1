@@ -47,7 +47,7 @@ services:
         restart: on-failure
 
     bert:
-        build: ./bert
+        build: ./emotion-bert
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.${BERT_SUBDOMAIN}.rule=Host(`${BERT_SUBDOMAIN}.${DOMAIN}`)"

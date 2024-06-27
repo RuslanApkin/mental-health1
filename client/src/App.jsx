@@ -6,7 +6,7 @@ function Home() {
 }
 
 function FormPage() {
-	return <h1>Page</h1>;
+	return <h1>Form</h1>;
 }
 
 function NotFound() {

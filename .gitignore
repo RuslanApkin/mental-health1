@@ -1,0 +1,8 @@
+.venv
+.env
+.vite
+mkdir letsencrypt
+pyrightconfig.json
+__pycache__
+.DS_Store
+node_modules

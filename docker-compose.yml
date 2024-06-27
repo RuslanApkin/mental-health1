@@ -1,0 +1,59 @@
+version: "3.8"
+
+networks:
+    proxy:
+        driver: overlay
+        attachable: true
+        name: proxy
+
+services:
+    traefik:
+        image: traefik:v2.4
+        networks:
+            - proxy
+        command:
+            - "--log.level=DEBUG"
+            - "--api.dashboard=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--providers.docker.network=proxy"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.le.acme.tlschallenge=true"
+            - "--certificatesresolvers.le.acme.email=${EMAIL}"
+            - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        volumes:
+            - "./letsencrypt:/letsencrypt"
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
+            - "traefik.http.routers.api.service=api@internal"
+            - "traefik.http.routers.api.tls.certresolver=le"
+
+    client:
+        build: ./client
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.rule=Host(`${CLIENT_SUBDOMAIN}.${DOMAIN}`)"
+            - "traefik.http.services.${CLIENT_SUBDOMAIN}.loadbalancer.server.port=${CLIENT_PORT}"
+            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.entrypoints=websecure"
+            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.tls.certresolver=le"
+        networks:
+            - proxy
+        restart: on-failure
+
+    bert:
+        build: ./bert
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.${BERT_SUBDOMAIN}.rule=Host(`${BERT_SUBDOMAIN}.${DOMAIN}`)"
+            - "traefik.http.services.${BERT_SUBDOMAIN}.loadbalancer.server.port=${BERT_PORT}"
+            - "traefik.http.routers.${BERT_SUBDOMAIN}.entrypoints=websecure"
+            - "traefik.http.routers.${BERT_SUBDOMAIN}.tls.certresolver=le"
+        networks:
+            - proxy
+        restart: on-failure

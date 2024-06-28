@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
+import { CouchDbService } from '../couchdb/couchdb.service';
+import { User } from '../couchdb/types';
 
 @Update()
 @Injectable()
 export class BotService {
-  constructor() {}
+  constructor(private readonly couchDb: CouchDbService) {}
 
   @Start()
   public async start(@Ctx() ctx: Context): Promise<void> {
-    await ctx.reply('Hello!');
+    const chatId = ctx.message.chat.id;
+    const users = await this.couchDb.getUserByChatId(chatId);
+    let user: User;
+    if (users.length === 0) {
+      user = await this.couchDb.createUser({ chatId });
+    } else user = users[0];
+    await ctx.reply(JSON.stringify(user));
   }
 
   @On('message')

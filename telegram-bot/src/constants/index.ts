@@ -1,1 +1,1 @@
-export const last_message_coef = 0.8;
+export const last_message_coef = 0.6;

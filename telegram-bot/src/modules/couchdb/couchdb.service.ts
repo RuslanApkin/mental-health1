@@ -31,15 +31,8 @@ export class CouchDbService {
     return response.docs;
   }
 
-  public async updateUser(u: User): Promise<User> {
-    const user = await this.db.get(u._id);
-
-    if (!user) throw new Error('User not found');
-
-    const response = await this.db.insert(u).then((response) => {
-      u.processAPIResponse(response);
-      return u;
-    });
+  public async updateUser(u: User): Promise<nano.DocumentInsertResponse> {
+    const response = await this.db.insert(u);
     return response;
   }
 }

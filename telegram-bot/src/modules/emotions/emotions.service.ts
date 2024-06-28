@@ -12,8 +12,8 @@ export class EmotionsService {
     if (users.length === 0) throw new Error('User not found');
     const user = users[0];
     user.emotions = user.emotions
-      ? emotionsCalc(user.emotions, emotions)
-      : emotions;
+      ? JSON.stringify(emotionsCalc(JSON.parse(user.emotions), emotions))
+      : JSON.stringify(emotions);
     const response = await this.couchDb.updateUser(user);
     return response;
   }
@@ -22,6 +22,6 @@ export class EmotionsService {
     const users = await this.couchDb.getUserByChatId(chatId);
     if (users.length === 0) throw new Error('User not found');
     const user = users[0];
-    return user.emotions;
+    return JSON.parse(user.emotions);
   }
 }

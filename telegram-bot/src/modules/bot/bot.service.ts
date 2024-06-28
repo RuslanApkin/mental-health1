@@ -3,11 +3,16 @@ import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { CouchDbService } from '../couchdb/couchdb.service';
 import { User } from '../couchdb/types';
+import { EmotionsService } from '../emotions/emotions.service';
+import { getEmotions } from 'src/utils';
 
 @Update()
 @Injectable()
 export class BotService {
-  constructor(private readonly couchDb: CouchDbService) {}
+  constructor(
+    private readonly couchDb: CouchDbService,
+    private readonly emotionsService: EmotionsService,
+  ) {}
 
   @Start()
   public async start(@Ctx() ctx: Context): Promise<void> {
@@ -15,9 +20,13 @@ export class BotService {
     const users = await this.couchDb.getUserByChatId(chatId);
     let user: User;
     if (users.length === 0) {
-      user = await this.couchDb.createUser({ chatId });
+      const emotions = await getEmotions('start');
+      user = await this.couchDb.createUser({
+        chatId,
+        emotions: JSON.stringify(emotions),
+      });
     } else user = users[0];
-    await ctx.reply(JSON.stringify(user));
+    await ctx.reply(user.emotions);
   }
 
   @On('message')
@@ -26,7 +35,10 @@ export class BotService {
     @Message('text') message: string,
   ): Promise<void> {
     const chatId = ctx.message.chat.id;
-    console.log(chatId);
-    await ctx.reply(message);
+
+    const emotions = await getEmotions(message);
+
+    await this.emotionsService.updateUserEmotionsByChatId(chatId, emotions);
+    await ctx.reply(JSON.stringify(emotions));
   }
 }

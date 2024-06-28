@@ -2,7 +2,7 @@ import * as nano from 'nano';
 
 export interface IUser extends nano.MaybeDocument {
   chatId: number;
-  emotions?: Emotions;
+  emotions: string;
 }
 
 export interface Emotions {
@@ -19,13 +19,14 @@ export class User implements IUser {
   public _id: string;
   public _rev: string;
   public chatId: number;
-  public emotions: Emotions;
+  public emotions: string;
 
-  constructor(chatId: number, emotions: Emotions) {
+  constructor(chatId: number, emotions: Emotions | string) {
     this._id = undefined;
     this._rev = undefined;
     this.chatId = chatId;
-    this.emotions = emotions;
+    this.emotions =
+      typeof emotions === 'string' ? emotions : JSON.stringify(emotions);
   }
 
   processAPIResponse(response: nano.DocumentInsertResponse) {

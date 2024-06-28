@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTelegram } from "../../app/hooks/telegram";
+import { Forbidden } from "./components/Forbidden";
 
 function Page() {
 	const { close, user, ready } = useTelegram();
@@ -10,10 +11,16 @@ function Page() {
 	}, [ready]);
 
 	return (
-		<div>
-			<h1>Home</h1>
-			<button onClick={close}>Close</button>
-		</div>
+		<>
+			{!user ? (
+				<Forbidden />
+			) : (
+				<>
+					<h1>Home</h1>
+					<button onClick={close}>Close</button>
+				</>
+			)}
+		</>
 	);
 }
 

@@ -1,12 +1,18 @@
-import { Input } from "../components/Input";
-
-export const AgeStep = ({ value }) => {
+export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
 	return (
-		<Input
-			title="How old are you?"
+		<input
 			name="age"
-			value={value["age"]}
-			placeholder="age"
+			value={formData?.age}
+			onChange={(e) => {
+				console.log("ONCHH", e.target.value);
+				if (e.target.value === "123") {
+					console.log("TEST");
+					setIsFormValid(false);
+				} else {
+					setIsFormValid(true);
+				}
+				handleChange(e);
+			}}
 		/>
 	);
 };

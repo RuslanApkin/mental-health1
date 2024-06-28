@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
 
 import { IntroStep } from "./steps/00_intro";
 import { AgeStep } from "./steps/01_age";
@@ -13,35 +11,50 @@ const MultiStepForm = () => {
 	const [step, setStep] = useState(1);
 	const [isFormValid, setIsFormValid] = useState(true);
 	const { MainButton, BackButton } = useTelegram();
+	const [formData, setFormData] = useState({
+		age: "",
+		gender: "",
+	});
 
-	const FormObserver = ({ isValid }) => {
-		useEffect(() => {
-			setIsFormValid(isValid);
-		}, [isValid]);
-
-		return null;
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
 	};
 
-	MainButton.show();
-	MainButton.onClick(() => {
-		if (isFormValid) {
-			setStep(step + 1);
-		}
-	});
+	useEffect(() => {
+		const handleMainButtonClick = () => {
+			if (isFormValid) {
+				setStep((prev) => prev + 1);
+			}
+		};
 
-	BackButton.onClick(() => {
-		if (step > 0) {
-			setStep(step - 1);
-		}
-	});
+		const handleBackButtonClick = () => {
+			if (step > 0) {
+				setStep((prev) => prev - 1);
+			}
+		};
+
+		MainButton.onClick(handleMainButtonClick);
+		BackButton.onClick(handleBackButtonClick);
+
+		// Возвращаем функцию для удаления обработчиков
+		return () => {
+			MainButton.offClick(handleMainButtonClick);
+			BackButton.offClick(handleBackButtonClick);
+		};
+	}, [step, isFormValid]); // Указываем все зависимости
 
 	useEffect(() => {
-		console.log("AAAAA", isFormValid);
+		MainButton.show();
+	}, []);
+
+	useEffect(() => {
 		if (isFormValid) {
-			window.Telegram.WebApp.setHeaderColor("#00FF00");
 			MainButton.enable();
 		} else {
-			window.Telegram.WebApp.setHeaderColor("#FF0000");
 			MainButton.disable();
 		}
 	}, [isFormValid, MainButton]);
@@ -52,35 +65,18 @@ const MultiStepForm = () => {
 		if (step > 0) {
 			BackButton.show();
 		} else {
+			MainButton.enable();
+			setIsFormValid(true);
 			BackButton.hide();
 		}
 	}, [step, BackButton]);
 
 	return (
-		<Formik
-			initialValues={{
-				age: "",
-				gender: "female",
-				self_employed: false,
-			}}
-			validationSchema={Yup.object({
-				age: step === 1 && Yup.number().required("Required"),
-				gender: step === 2 && Yup.string().required("Required"),
-			})}
-			validateOnMount
-			validateOnChange
-		>
-			{(state) => {
-				<FormObserver isValid={state.isValid} />;
-
-				return (
-					<>
-						<div>{step}</div>
-						<Form>{steps[step]({ value: state.values })}</Form>
-					</>
-				);
-			}}
-		</Formik>
+		<>
+			<div>{isFormValid ? "ok" : "gg"}</div>
+			<div>{step}</div>
+			{steps[step]({ formData, handleChange, setIsFormValid })}
+		</>
 	);
 };
 

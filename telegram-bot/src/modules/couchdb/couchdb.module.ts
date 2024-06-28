@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CouchdbService } from './couchdb.service';
+import { CouchDbService } from './couchdb.service';
 
 @Module({
-  providers: [CouchdbService],
+  providers: [CouchDbService],
+  exports: [CouchDbService],
 })
-export class CouchdbModule {}
+export class CouchDbModule {}

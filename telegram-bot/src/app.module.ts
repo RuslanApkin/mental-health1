@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { BotModule } from './modules/bot/bot.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: `./env/.${process.env.NODE_ENV}.env`,
     }),
+    BotModule,
   ],
   providers: [AppService],
 })

@@ -1,1 +1,4 @@
-TELEGRAM_TOKEN=
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class BotService {}

@@ -1,6 +1,12 @@
 export const useTelegram = () => {
-	const { initDataUnsafe, close, ready, setHeaderColor } =
-		window.Telegram.WebApp;
+	const {
+		initDataUnsafe,
+		close,
+		ready,
+		setHeaderColor,
+		MainButton,
+		BackButton,
+	} = window.Telegram.WebApp;
 
 	setHeaderColor("secondary_bg_color");
 
@@ -8,5 +14,7 @@ export const useTelegram = () => {
 		user: initDataUnsafe?.user,
 		ready,
 		close,
+		MainButton,
+		BackButton,
 	};
 };

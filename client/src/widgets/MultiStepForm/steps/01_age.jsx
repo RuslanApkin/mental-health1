@@ -5,7 +5,7 @@ export const AgeStep = ({ value }) => {
 		<Input
 			title="How old are you?"
 			name="age"
-			value={value}
+			value={value["age"]}
 			placeholder="age"
 		/>
 	);

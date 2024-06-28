@@ -4,17 +4,24 @@ import { IntroStep } from "./steps/00_intro";
 import { AgeStep } from "./steps/01_age";
 import { GenderStep } from "./steps/02_gender";
 import { useTelegram } from "../../app/hooks/telegram";
+import { Outro } from "./steps/99_outro";
 
-const steps = [IntroStep, AgeStep, GenderStep];
+const steps = [IntroStep, AgeStep, GenderStep, Outro];
 
 const MultiStepForm = () => {
-	const [step, setStep] = useState(1);
+	const [step, setStep] = useState(0);
 	const [isFormValid, setIsFormValid] = useState(true);
-	const { MainButton, BackButton } = useTelegram();
+	const { MainButton, BackButton, close } = useTelegram();
 	const [formData, setFormData] = useState({
 		age: "",
 		gender: "",
 	});
+
+	useEffect(() => {
+		if (!formData.age) {
+			setIsFormValid(false);
+		}
+	}, [formData, step]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -26,7 +33,10 @@ const MultiStepForm = () => {
 
 	useEffect(() => {
 		const handleMainButtonClick = () => {
-			if (isFormValid) {
+			const isLastStep = step === steps.length - 1;
+			if (isLastStep) {
+				close();
+			} else if (isFormValid) {
 				setStep((prev) => prev + 1);
 			}
 		};
@@ -40,12 +50,11 @@ const MultiStepForm = () => {
 		MainButton.onClick(handleMainButtonClick);
 		BackButton.onClick(handleBackButtonClick);
 
-		// Возвращаем функцию для удаления обработчиков
 		return () => {
 			MainButton.offClick(handleMainButtonClick);
 			BackButton.offClick(handleBackButtonClick);
 		};
-	}, [step, isFormValid]); // Указываем все зависимости
+	}, [step, isFormValid, MainButton, BackButton, close]);
 
 	useEffect(() => {
 		MainButton.show();
@@ -53,15 +62,25 @@ const MultiStepForm = () => {
 
 	useEffect(() => {
 		if (isFormValid) {
-			MainButton.enable();
+			MainButton.enable().setParams({
+				text: "Next",
+				color: "#2481CC",
+			});
 		} else {
-			MainButton.disable();
+			MainButton.disable().setParams({
+				text: "Incorrect",
+				color: "#FFA500",
+			});
 		}
 	}, [isFormValid, MainButton]);
 
-	const isLastStep = step === steps.length - 1;
-
 	useEffect(() => {
+		const isLastStep = step === steps.length - 1;
+		if (isLastStep) {
+			MainButton.setParams({ text: "Submit", color: "#28A745" });
+		} else {
+			MainButton.setParams({ text: "Next", color: "#2481CC" });
+		}
 		if (step > 0) {
 			BackButton.show();
 		} else {
@@ -69,15 +88,9 @@ const MultiStepForm = () => {
 			setIsFormValid(true);
 			BackButton.hide();
 		}
-	}, [step, BackButton]);
+	}, [step, MainButton, BackButton]);
 
-	return (
-		<>
-			<div>{isFormValid ? "ok" : "gg"}</div>
-			<div>{step}</div>
-			{steps[step]({ formData, handleChange, setIsFormValid })}
-		</>
-	);
+	return steps[step]({ formData, handleChange, setIsFormValid });
 };
 
 export default MultiStepForm;

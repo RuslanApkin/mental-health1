@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CouchDbModule } from '../couchdb/couchdb.module';
 
-@Module({})
+@Module({ imports: [CouchDbModule] })
 export class EmotionsModule {}

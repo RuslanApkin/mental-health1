@@ -2,33 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { CouchDbService } from '../couchdb/couchdb.service';
-import { User } from '../couchdb/types';
+import { Chat, User } from '../couchdb/types';
 import { EmotionsService } from '../emotions/emotions.service';
 import { getEmotions } from 'src/utils';
-import { MistralService } from '../mistral/mistral.service';
+import { ModelService } from '../model/model.service';
 
 @Update()
 @Injectable()
 export class BotService {
+  private servedChats = [];
+
   constructor(
     private readonly couchDb: CouchDbService,
     private readonly emotionsService: EmotionsService,
-    private readonly misrtralService: MistralService,
+    private readonly modelService: ModelService,
   ) {}
 
   @Start()
   public async start(@Ctx() ctx: Context): Promise<void> {
     const chatId = ctx.message.chat.id;
-    const users = await this.couchDb.getUserByChatId(chatId);
-    let user: User;
-    if (users.length === 0) {
-      const emotions = await getEmotions('start');
-      user = await this.couchDb.createUser({
-        chatId,
-        emotions: JSON.stringify(emotions),
-      });
-    } else user = users[0];
-    await ctx.reply(user.emotions);
+    const user = await this.getOrCreateUser(chatId);
+    await ctx.reply(JSON.stringify(user.chatId));
   }
 
   @On('message')
@@ -37,12 +31,47 @@ export class BotService {
     @Message('text') message: string,
   ): Promise<void> {
     const chatId = ctx.message.chat.id;
+    if (this.servedChats.includes(chatId)) {
+      console.log('includes: ' + JSON.stringify(this.servedChats));
+      return;
+    }
+    let response: string;
+    try {
+      this.servedChats.push(chatId);
+      const { message_id } = await ctx.reply('Please, wait for response');
+      ctx.sendChatAction('typing');
 
-    const emotions = await getEmotions(message);
+      const emotions = await getEmotions(message);
+      await this.emotionsService.updateUserEmotionsByChatId(chatId, emotions);
 
-    await this.emotionsService.updateUserEmotionsByChatId(chatId, emotions);
+      const user = await this.getOrCreateUser(chatId);
 
-    const response = await this.misrtralService.getResponse();
-    await ctx.reply(response);
+      const chat: Chat = JSON.parse(user.chat);
+      chat.push({ role: 'user', content: message });
+
+      response = await this.modelService.getResponse(chat);
+
+      chat.push({ role: 'assistant', content: response });
+      user.chat = JSON.stringify(chat);
+
+      this.couchDb.updateUser(user);
+      await ctx.deleteMessage(message_id);
+    } catch (error) {
+      console.log(error);
+      this.servedChats = this.servedChats.filter((item) => item !== chatId);
+      await ctx.reply('Error occured. Please try later...');
+      return;
+    }
+
+    this.servedChats = this.servedChats.filter((item) => item !== chatId);
+    await ctx.replyWithMarkdown(response);
+  }
+
+  private async getOrCreateUser(chatId: number): Promise<User> {
+    const users = await this.couchDb.getUserByChatId(chatId);
+    if (users.length === 0) {
+      return await this.couchDb.createUser(chatId);
+    }
+    return users[0];
   }
 }

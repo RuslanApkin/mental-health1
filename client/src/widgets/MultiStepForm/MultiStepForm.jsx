@@ -126,12 +126,14 @@ const MultiStepForm = () => {
 			{!response ? (
 				<>
 					<ProgressBar value={step} max={steps.length - 1} />
-					{steps[step]({
-						formData,
-						handleChange,
-						setIsFormValid,
-						setError,
-					})}
+					<div>
+						{steps[step]({
+							formData,
+							handleChange,
+							setIsFormValid,
+							setError,
+						})}
+					</div>
 				</>
 			) : response.ok ? (
 				<Success />

@@ -29,13 +29,16 @@ export const AgeStep = ({
 	};
 
 	return (
-		<Input
-			name="age"
-			value={formData?.age || ""}
-			onChange={onChange}
-			placeholder="age"
-			// type="tel"
-			inputMode="numeric"
-		/>
+		<>
+			<h1>How old are you?</h1>
+			<Input
+				name="age"
+				value={formData?.age || ""}
+				onChange={onChange}
+				placeholder="age"
+				// type="tel"
+				inputMode="numeric"
+			/>
+		</>
 	);
 };

@@ -8,14 +8,14 @@ const options = [
 
 export const GenderStep = ({ formData, handleChange }) => {
 	return (
-		<div>
-			<h1>Select an Option</h1>
+		<>
+			<h1>Select your gender</h1>
 			<Select
 				name="gender"
 				selected={formData?.gender}
 				options={options}
 				handleChange={handleChange}
 			/>
-		</div>
+		</>
 	);
 };

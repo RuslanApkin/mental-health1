@@ -17,7 +17,7 @@ body {
 	background-color: var(--tg-theme-bg-color);
 	color: var(--tg-theme-text-color);
 	place-items: center;
-	min-width: 320px;
+	min-width: 100wh;
 	min-height: 100vh;
 }
 

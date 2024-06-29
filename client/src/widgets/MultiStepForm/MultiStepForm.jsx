@@ -7,12 +7,15 @@ import { useTelegram } from "../../app/hooks/telegram";
 import { Outro } from "./steps/99_outro";
 import ProgressBar from "./components/ProgressBar";
 import { COLORS } from "./colors/colors";
+import { Success } from "./components/Success";
+import { InternalError } from "./components/InternalError";
 
 const steps = [IntroStep, AgeStep, GenderStep, Outro];
 
 const MultiStepForm = () => {
 	const [step, setStep] = useState(0);
 	const [isFormValid, setIsFormValid] = useState(true);
+	const [response, setResponse] = useState(null);
 	const { MainButton, BackButton, close, themeParams } = useTelegram();
 	const [formData, setFormData] = useState({
 		age: "",
@@ -36,7 +39,9 @@ const MultiStepForm = () => {
 	useEffect(() => {
 		const handleMainButtonClick = () => {
 			const isLastStep = step === steps.length - 1;
-			if (isLastStep) {
+			if (response) {
+				close();
+			} else if (isLastStep) {
 				MainButton.showProgress().setParams({
 					text: "Loading...",
 					color: COLORS.secondarySumbit,
@@ -46,6 +51,7 @@ const MultiStepForm = () => {
 						text: "Submit",
 						color: COLORS.primarySumbit,
 					});
+					setResponse({ ok: false });
 				}, 600);
 			} else if (isFormValid) {
 				setStep((prev) => prev + 1);
@@ -65,7 +71,7 @@ const MultiStepForm = () => {
 			MainButton.offClick(handleMainButtonClick);
 			BackButton.offClick(handleBackButtonClick);
 		};
-	}, [step, isFormValid, MainButton, BackButton, close]);
+	}, [step, isFormValid, response, MainButton, BackButton, close]);
 
 	useEffect(() => {
 		MainButton.show();
@@ -87,7 +93,13 @@ const MultiStepForm = () => {
 
 	useEffect(() => {
 		const isLastStep = step === steps.length - 1;
-		if (isLastStep) {
+		if (response) {
+			BackButton.hide();
+			MainButton.setParams({
+				text: "Ok",
+				color: themeParams.button_color,
+			});
+		} else if (isLastStep) {
 			MainButton.setParams({
 				text: "Submit",
 				color: COLORS.primarySumbit,
@@ -105,12 +117,20 @@ const MultiStepForm = () => {
 			setIsFormValid(true);
 			BackButton.hide();
 		}
-	}, [step, MainButton, BackButton, themeParams]);
+	}, [step, response, MainButton, BackButton, themeParams]);
 
 	return (
 		<>
-			<ProgressBar value={step} max={steps.length - 1} />
-			{steps[step]({ formData, handleChange, setIsFormValid })}
+			{!response ? (
+				<>
+					<ProgressBar value={step} max={steps.length - 1} />
+					{steps[step]({ formData, handleChange, setIsFormValid })}
+				</>
+			) : response.ok ? (
+				<Success />
+			) : (
+				<InternalError />
+			)}
 		</>
 	);
 };

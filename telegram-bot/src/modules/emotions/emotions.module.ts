@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CouchDbModule } from '../couchdb/couchdb.module';
 import { EmotionsService } from './emotions.service';
-import { EmotionsController } from './emotions.controller';
+import { EmotionsController, ScoreController } from './emotions.controller';
 
 @Module({
   imports: [CouchDbModule],
-  controllers: [EmotionsController],
+  controllers: [EmotionsController, ScoreController],
   providers: [EmotionsService],
   exports: [EmotionsService],
 })

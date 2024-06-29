@@ -22,7 +22,7 @@ export class BotService {
   public async start(@Ctx() ctx: Context): Promise<void> {
     const chatId = ctx.message.chat.id;
     const user = await this.getOrCreateUser(chatId);
-    await ctx.reply(JSON.stringify(user));
+    await ctx.reply(JSON.stringify(user.chatId));
   }
 
   @On('message')

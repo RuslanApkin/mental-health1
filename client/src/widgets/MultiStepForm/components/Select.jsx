@@ -1,28 +1,37 @@
-import { ErrorMessage, Field, useField } from "formik";
+import { useState } from "react";
+import "../styles/Form.css";
 
-export const Select = ({ label, options, name }) => {
-	const [field, meta, helpers] = useField(name);
-	console.log("META", name, meta);
+export const Select = ({ name, selected, options, handleChange }) => {
+	const [selectedValue, setSelectedValue] = useState(selected);
+
+	const handleClick = (value) => {
+		setSelectedValue(value);
+
+		const event = {
+			target: {
+				name: name,
+				value: value,
+			},
+		};
+
+		if (handleChange) {
+			handleChange(event);
+		}
+	};
 
 	return (
-		<div className="form-control">
-			<label>{label}</label>
-			<div className="button-group">
-				{options.map((option) => (
-					<button
-						type="button"
-						key={option.value}
-						className={`button-option ${field.value === option.value ? "selected" : ""}`}
-						onClick={() => helpers.setValue(option.value)}
-					>
-						{option.label}
-					</button>
-				))}
-			</div>
-			<Field type="hidden" name={name} />
-			<ErrorMessage name="favoriteColor">
-				{(msg) => <div className="error">{msg}</div>}
-			</ErrorMessage>
+		<div className="select-button-container">
+			<input type="hidden" name={name} value={selectedValue} />
+			{options.map((option) => (
+				<button
+					key={option.value}
+					className={`select-button ${selectedValue === option.value ? "selected" : ""}`}
+					onClick={() => handleClick(option.value)}
+					type="button"
+				>
+					{option.label}
+				</button>
+			))}
 		</div>
 	);
 };

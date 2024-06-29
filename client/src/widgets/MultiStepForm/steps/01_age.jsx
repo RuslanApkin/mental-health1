@@ -1,12 +1,28 @@
 import { Input } from "../components/Input";
 
-export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
+export const AgeStep = ({
+	formData,
+	handleChange,
+	setIsFormValid,
+	setError,
+}) => {
 	const onChange = (e) => {
 		const value = e.target.value;
 
 		if (/^\d*$/.test(value)) {
 			handleChange(e);
-			setIsFormValid(value.length > 0);
+			if (value < 0) {
+				setIsFormValid(false);
+				setError("Indicate your real age");
+			} else if (value > 100) {
+				setIsFormValid(false);
+				setError("Indicate your real age");
+			} else if (value < 18) {
+				setIsFormValid(false);
+				setError("You must be over 18");
+			} else {
+				setIsFormValid(true);
+			}
 		} else {
 			e.preventDefault();
 		}

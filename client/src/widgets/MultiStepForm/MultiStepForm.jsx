@@ -15,6 +15,7 @@ const steps = [IntroStep, AgeStep, GenderStep, Outro];
 const MultiStepForm = () => {
 	const [step, setStep] = useState(0);
 	const [isFormValid, setIsFormValid] = useState(true);
+	const [error, setError] = useState("");
 	const [response, setResponse] = useState(null);
 	const { MainButton, BackButton, close, themeParams } = useTelegram();
 	const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ const MultiStepForm = () => {
 	useEffect(() => {
 		if (!formData.age) {
 			setIsFormValid(false);
+			setError("Age is required");
 		}
 	}, [formData, step]);
 
@@ -85,11 +87,11 @@ const MultiStepForm = () => {
 			});
 		} else {
 			MainButton.disable().setParams({
-				text: "Incorrect",
+				text: error,
 				color: COLORS.primaryWarning,
 			});
 		}
-	}, [isFormValid, MainButton, themeParams]);
+	}, [isFormValid, MainButton, themeParams, error]);
 
 	useEffect(() => {
 		const isLastStep = step === steps.length - 1;
@@ -124,7 +126,12 @@ const MultiStepForm = () => {
 			{!response ? (
 				<>
 					<ProgressBar value={step} max={steps.length - 1} />
-					{steps[step]({ formData, handleChange, setIsFormValid })}
+					{steps[step]({
+						formData,
+						handleChange,
+						setIsFormValid,
+						setError,
+					})}
 				</>
 			) : response.ok ? (
 				<Success />

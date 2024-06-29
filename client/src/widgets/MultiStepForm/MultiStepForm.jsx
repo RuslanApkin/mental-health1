@@ -14,7 +14,7 @@ const MultiStepForm = () => {
 	const { MainButton, BackButton, close } = useTelegram();
 	const [formData, setFormData] = useState({
 		age: "",
-		gender: "",
+		gender: "male",
 	});
 
 	useEffect(() => {

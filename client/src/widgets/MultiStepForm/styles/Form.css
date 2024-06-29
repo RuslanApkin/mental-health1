@@ -23,3 +23,28 @@
 	border-color: #007bff;
 	color: white;
 }
+
+.input-container {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}
+
+input[type="text"] {
+	width: 100%;
+	padding: 10px 15px;
+	margin: 10px 0;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	font-size: 16px;
+	transition:
+		border-color 0.3s,
+		box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+	outline: none;
+}

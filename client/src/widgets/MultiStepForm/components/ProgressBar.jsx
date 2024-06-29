@@ -1,4 +1,4 @@
-import "./ProgressBar.css";
+import "../styles/ProgressBar.css";
 
 const ProgressBar = ({ value, max }) => {
 	// Ограничим значение value в пределах 0 и max

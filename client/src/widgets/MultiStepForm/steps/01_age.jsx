@@ -1,3 +1,5 @@
+import { Input } from "../components/Input";
+
 export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
 	const onChange = (e) => {
 		const num = e.target.value;
@@ -10,5 +12,12 @@ export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
 		handleChange(e);
 	};
 
-	return <input name="age" value={formData?.age || ""} onChange={onChange} />;
+	return (
+		<Input
+			name="age"
+			value={formData?.age || ""}
+			onChange={onChange}
+			placeholder="age"
+		/>
+	);
 };

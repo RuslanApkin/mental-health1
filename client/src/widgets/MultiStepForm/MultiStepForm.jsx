@@ -6,13 +6,14 @@ import { GenderStep } from "./steps/02_gender";
 import { useTelegram } from "../../app/hooks/telegram";
 import { Outro } from "./steps/99_outro";
 import ProgressBar from "./components/ProgressBar";
+import { COLORS } from "./colors/colors";
 
 const steps = [IntroStep, AgeStep, GenderStep, Outro];
 
 const MultiStepForm = () => {
 	const [step, setStep] = useState(0);
 	const [isFormValid, setIsFormValid] = useState(true);
-	const { MainButton, BackButton, close } = useTelegram();
+	const { MainButton, BackButton, close, themeParams } = useTelegram();
 	const [formData, setFormData] = useState({
 		age: "",
 		gender: "male",
@@ -36,7 +37,16 @@ const MultiStepForm = () => {
 		const handleMainButtonClick = () => {
 			const isLastStep = step === steps.length - 1;
 			if (isLastStep) {
-				close();
+				MainButton.showProgress().setParams({
+					text: "Loading...",
+					color: COLORS.secondarySumbit,
+				});
+				setTimeout(() => {
+					MainButton.hideProgress().setParams({
+						text: "Submit",
+						color: COLORS.primarySumbit,
+					});
+				}, 600);
 			} else if (isFormValid) {
 				setStep((prev) => prev + 1);
 			}
@@ -59,28 +69,34 @@ const MultiStepForm = () => {
 
 	useEffect(() => {
 		MainButton.show();
-	}, []);
+	}, [MainButton]);
 
 	useEffect(() => {
 		if (isFormValid) {
 			MainButton.enable().setParams({
 				text: "Next",
-				color: "#2481CC",
+				color: themeParams.button_color,
 			});
 		} else {
 			MainButton.disable().setParams({
 				text: "Incorrect",
-				color: "#FFA500",
+				color: COLORS.primaryWarning,
 			});
 		}
-	}, [isFormValid, MainButton]);
+	}, [isFormValid, MainButton, themeParams]);
 
 	useEffect(() => {
 		const isLastStep = step === steps.length - 1;
 		if (isLastStep) {
-			MainButton.setParams({ text: "Submit", color: "#28A745" });
+			MainButton.setParams({
+				text: "Submit",
+				color: COLORS.primarySumbit,
+			});
 		} else {
-			MainButton.setParams({ text: "Next", color: "#2481CC" });
+			MainButton.setParams({
+				text: "Next",
+				color: themeParams.button_color,
+			});
 		}
 		if (step > 0) {
 			BackButton.show();
@@ -89,7 +105,7 @@ const MultiStepForm = () => {
 			setIsFormValid(true);
 			BackButton.hide();
 		}
-	}, [step, MainButton, BackButton]);
+	}, [step, MainButton, BackButton, themeParams]);
 
 	return (
 		<>

@@ -19,15 +19,7 @@ export class BotService {
   @Start()
   public async start(@Ctx() ctx: Context): Promise<void> {
     const chatId = ctx.message.chat.id;
-    const users = await this.couchDb.getUserByChatId(chatId);
-    let user: User;
-    if (users.length === 0) {
-      const emotions = await getEmotions('start');
-      user = await this.couchDb.createUser({
-        chatId,
-        emotions: JSON.stringify(emotions),
-      });
-    } else user = users[0];
+    const user = await this.getOrCreateUser(chatId);
     await ctx.reply(user.emotions);
   }
 
@@ -39,8 +31,9 @@ export class BotService {
     const chatId = ctx.message.chat.id;
 
     const emotions = await getEmotions(message);
-
     await this.emotionsService.updateUserEmotionsByChatId(chatId, emotions);
+
+    const user = await this.getOrCreateUser(chatId);
 
     const response = await this.misrtralService.getResponse([
       {
@@ -49,5 +42,17 @@ export class BotService {
       },
     ]);
     await ctx.reply(response);
+  }
+
+  private async getOrCreateUser(chatId: number): Promise<User> {
+    const users = await this.couchDb.getUserByChatId(chatId);
+    if (users.length === 0) {
+      const emotions = await getEmotions('start');
+      return await this.couchDb.createUser({
+        chatId,
+        emotions: JSON.stringify(emotions),
+      });
+    }
+    return users[0];
   }
 }

@@ -4,7 +4,7 @@ export interface IUser extends nano.MaybeDocument {
   chatId: number;
   emotions: string;
   chat: string;
-  test_score?: number;
+  test_score: number;
 }
 
 export interface Emotions {
@@ -30,21 +30,23 @@ export class User implements IUser {
   public chatId: number;
   public emotions: string;
   public chat: string;
-  public test_score?: number;
+  public test_score: number;
 
   constructor(
     chatId: number,
-    emotions: Emotions | string,
-    chat: Chat | string,
+    emotions?: string,
+    chat?: string,
     test_score?: number,
   ) {
     this._id = undefined;
     this._rev = undefined;
     this.chatId = chatId;
-    this.emotions =
-      typeof emotions === 'string' ? emotions : JSON.stringify(emotions);
-    this.chat = typeof chat === 'string' ? chat : JSON.stringify(chat);
+    if (emotions) this.emotions = emotions;
+    else this.emotions = undefined;
+    if (chat) this.chat = chat;
+    else this.chat = '[]';
     if (test_score) this.test_score = test_score;
+    else this.test_score = undefined;
   }
 
   processAPIResponse(response: nano.DocumentInsertResponse) {

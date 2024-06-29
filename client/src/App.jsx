@@ -3,10 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Status } from "./pages/Status";
 import { Form } from "./pages/Form";
 import { Telegram } from "./layout/Telegram";
-
-function NotFound() {
-	return <h1>404</h1>;
-}
+import { NotFound } from "./pages/NotFound";
 
 function App() {
 	return (

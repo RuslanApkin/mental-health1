@@ -9,6 +9,7 @@ import ProgressBar from "./components/ProgressBar";
 import { COLORS } from "./colors/colors";
 import { Success } from "./components/Success";
 import { InternalError } from "./components/InternalError";
+import { validateAge } from "./utils/validations";
 
 const steps = [IntroStep, AgeStep, GenderStep, Outro];
 
@@ -24,10 +25,7 @@ const MultiStepForm = () => {
 	});
 
 	useEffect(() => {
-		if (!formData.age) {
-			setIsFormValid(false);
-			setError("Age is required");
-		}
+		validateAge(formData.age, setIsFormValid, setError);
 	}, [formData, step]);
 
 	const handleChange = (e) => {

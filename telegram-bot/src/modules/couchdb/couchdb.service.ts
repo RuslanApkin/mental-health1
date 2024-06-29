@@ -18,7 +18,7 @@ export class CouchDbService {
   }
 
   public async createUser(user: IUser): Promise<User> {
-    const u = new User(user.chatId, user.emotions);
+    const u = new User(user.chatId, user.emotions, user.chat);
     const response = await this.db.insert(u).then((response) => {
       u.processAPIResponse(response);
       return u;

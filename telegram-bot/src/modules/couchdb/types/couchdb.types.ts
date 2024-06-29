@@ -3,7 +3,7 @@ import * as nano from 'nano';
 export interface IUser extends nano.MaybeDocument {
   chatId: number;
   emotions: string;
-  chat: Chat | string;
+  chat: string;
   test_score?: number;
 }
 
@@ -29,14 +29,14 @@ export class User implements IUser {
   public _rev: string;
   public chatId: number;
   public emotions: string;
-  public chat: Chat | string;
+  public chat: string;
   public test_score?: number;
 
   constructor(
     chatId: number,
     emotions: Emotions | string,
     chat: Chat | string,
-    test_score: number,
+    test_score?: number,
   ) {
     this._id = undefined;
     this._rev = undefined;

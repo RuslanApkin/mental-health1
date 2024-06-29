@@ -35,12 +35,9 @@ export class BotService {
 
     const user = await this.getOrCreateUser(chatId);
 
-    const response = await this.misrtralService.getResponse([
-      {
-        role: 'user',
-        content: message,
-      },
-    ]);
+    const response = await this.misrtralService.getResponse(
+      JSON.parse(user.chat),
+    );
     await ctx.reply(response);
   }
 
@@ -51,6 +48,7 @@ export class BotService {
       return await this.couchDb.createUser({
         chatId,
         emotions: JSON.stringify(emotions),
+        chat: JSON.stringify([]),
       });
     }
     return users[0];

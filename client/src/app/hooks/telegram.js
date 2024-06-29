@@ -7,12 +7,14 @@ export const useTelegram = () => {
 		MainButton,
 		BackButton,
 		themeParams,
+		chat,
 	} = window.Telegram.WebApp;
 
 	setHeaderColor("secondary_bg_color");
 
 	return {
 		user: initDataUnsafe?.user,
+		chat,
 		ready,
 		close,
 		MainButton,

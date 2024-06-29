@@ -5,7 +5,7 @@ import { CouchDbService } from '../couchdb/couchdb.service';
 import { User } from '../couchdb/types';
 import { EmotionsService } from '../emotions/emotions.service';
 import { getEmotions } from 'src/utils';
-import { MistralService } from '../mistral/mistral.service';
+import { ModelService } from '../model/model.service';
 
 @Update()
 @Injectable()
@@ -13,7 +13,7 @@ export class BotService {
   constructor(
     private readonly couchDb: CouchDbService,
     private readonly emotionsService: EmotionsService,
-    private readonly misrtralService: MistralService,
+    private readonly misrtralService: ModelService,
   ) {}
 
   @Start()
@@ -42,7 +42,12 @@ export class BotService {
 
     await this.emotionsService.updateUserEmotionsByChatId(chatId, emotions);
 
-    const response = await this.misrtralService.getResponse();
+    const response = await this.misrtralService.getResponse([
+      {
+        role: 'user',
+        content: message,
+      },
+    ]);
     await ctx.reply(response);
   }
 }

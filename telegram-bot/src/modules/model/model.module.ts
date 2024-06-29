@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MistralService } from './mistral.service';
+import { ModelService } from './model.service';
 
-@Module({ providers: [MistralService], exports: [MistralService] })
-export class MistralModule {}
+@Module({ providers: [ModelService], exports: [ModelService] })
+export class ModelModule {}

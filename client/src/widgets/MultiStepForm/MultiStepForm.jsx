@@ -5,6 +5,7 @@ import { AgeStep } from "./steps/01_age";
 import { GenderStep } from "./steps/02_gender";
 import { useTelegram } from "../../app/hooks/telegram";
 import { Outro } from "./steps/99_outro";
+import { ProgressBar } from "./components/ProgressBar";
 
 const steps = [IntroStep, AgeStep, GenderStep, Outro];
 
@@ -90,7 +91,12 @@ const MultiStepForm = () => {
 		}
 	}, [step, MainButton, BackButton]);
 
-	return steps[step]({ formData, handleChange, setIsFormValid });
+	return (
+		<>
+			<ProgressBar value={step} max={steps.length - 1} />
+			{steps[step]({ formData, handleChange, setIsFormValid })}
+		</>
+	);
 };
 
 export default MultiStepForm;

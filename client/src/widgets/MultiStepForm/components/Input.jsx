@@ -1,6 +1,6 @@
 import "../styles/Form.css";
 
-export const Input = ({ name, value, onChange, placeholder }) => {
+export const Input = ({ name, value, onChange, placeholder, ...extra }) => {
 	return (
 		<div className="input-container">
 			<input
@@ -9,6 +9,8 @@ export const Input = ({ name, value, onChange, placeholder }) => {
 				value={value}
 				onChange={onChange}
 				placeholder={placeholder}
+				autoFocus
+				{...extra}
 			/>
 		</div>
 	);

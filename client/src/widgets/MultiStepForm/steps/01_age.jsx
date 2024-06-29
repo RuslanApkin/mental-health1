@@ -2,14 +2,14 @@ import { Input } from "../components/Input";
 
 export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
 	const onChange = (e) => {
-		const num = e.target.value;
-		if (!isNaN(num) && num > 0) {
-			setIsFormValid(true);
-		} else {
-			setIsFormValid(false);
-		}
+		const value = e.target.value;
 
-		handleChange(e);
+		if (/^\d*$/.test(value)) {
+			handleChange(e);
+			setIsFormValid(value.length > 0);
+		} else {
+			e.preventDefault();
+		}
 	};
 
 	return (
@@ -18,6 +18,8 @@ export const AgeStep = ({ formData, handleChange, setIsFormValid }) => {
 			value={formData?.age || ""}
 			onChange={onChange}
 			placeholder="age"
+			// type="tel"
+			inputMode="numeric"
 		/>
 	);
 };

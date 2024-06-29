@@ -1,0 +1,12 @@
+.status-container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+}
+
+.status-container h1 {
+	position: absolute;
+	bottom: 20px;
+}

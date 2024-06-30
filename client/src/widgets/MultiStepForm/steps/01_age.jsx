@@ -1,12 +1,7 @@
 import { Input } from "../components/Input";
 import { validateAge } from "../utils/validations";
 
-export const AgeStep = ({
-	formData,
-	handleChange,
-	setIsFormValid,
-	setError,
-}) => {
+export const Step1 = ({ formData, handleChange, setIsFormValid, setError }) => {
 	const onChange = (e) => {
 		const value = e.target.value;
 

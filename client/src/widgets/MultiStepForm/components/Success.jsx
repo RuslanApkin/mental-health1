@@ -1,7 +1,8 @@
-export const Success = () => {
+export const Success = ({ response }) => {
 	return (
-		<div>
+		<>
 			<h1>Susscess</h1>
-		</div>
+			<div>{JSON.stringify(response)}</div>
+		</>
 	);
 };

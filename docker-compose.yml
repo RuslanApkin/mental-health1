@@ -85,6 +85,9 @@ services:
       - proxy
       - mynetwork
     restart: on-failure
+    depends_on:
+      - couchdb
+      - ollama
 
   couchdb:
     image: couchdb:latest

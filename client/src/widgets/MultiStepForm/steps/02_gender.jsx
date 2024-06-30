@@ -1,12 +1,12 @@
 import { Select } from "../components/Select";
 
 const options = [
-	{ value: "male", label: "Male" },
-	{ value: "female", label: "Female" },
-	{ value: "other", label: "Other" },
+	{ value: 0, label: "Male" },
+	{ value: 2, label: "Female" },
+	{ value: 1, label: "Other" },
 ];
 
-export const GenderStep = ({ formData, handleChange }) => {
+export const Step2 = ({ formData, handleChange }) => {
 	return (
 		<>
 			<h1>Select your gender</h1>

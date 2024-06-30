@@ -45,20 +45,36 @@ function Page() {
 				setError(error.message);
 				console.error(error.message);
 			});
-	}, [user]);
+	}, []);
 
 	return (
 		<>
 			{loading ? (
 				<Loader />
 			) : error ? (
-				<h1>Internal server error</h1>
+				<>
+					<h1>Internal server error</h1>
+					<span>Please try again later</span>
+				</>
 			) : (
 				<>
-					<Canvas />
+					<Canvas
+						emotions={status?.emotions}
+						probability={status?.test_score?.probabilities
+							?.at(0)
+							?.at(1)}
+					/>
 					<FrostedGlass />
 					<div className="status-container">
-						<h1>Your status {JSON.stringify(status)}</h1>
+						<h1>
+							Your status:{" "}
+							{Math.round(
+								status?.test_score?.probabilities
+									?.at(0)
+									?.at(0) * 100,
+							)}
+							%
+						</h1>
 					</div>
 				</>
 			)}

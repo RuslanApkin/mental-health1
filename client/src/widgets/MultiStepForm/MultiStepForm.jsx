@@ -166,7 +166,7 @@ const MultiStepForm = () => {
 			{!response ? (
 				<>
 					<ProgressBar value={step} max={steps.length - 1} />
-					<div style={{ backgroundColor: "red" }}>
+					<div>
 						{steps[step]({
 							formData,
 							handleChange,

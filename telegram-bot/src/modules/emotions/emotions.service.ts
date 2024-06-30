@@ -4,10 +4,14 @@ import { Emotions } from '../couchdb/types';
 import { emotionsCalc } from 'src/utils';
 import nano from 'nano';
 import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmotionsService {
-  constructor(private readonly couchDb: CouchDbService) {}
+  constructor(
+    private readonly couchDb: CouchDbService,
+    private readonly configService: ConfigService,
+  ) {}
 
   public async updateUserEmotionsByChatId(
     chatId: number,
@@ -42,7 +46,7 @@ export class EmotionsService {
     const users = await this.couchDb.getUserByChatId(chatId);
     if (users.length === 0) throw new Error('User not found');
     const user = users[0];
-    const data = await axios.post('http://localhost:6000/predict', body);
+    const data = await axios.post(this.configService.get('FORM_URL'), body);
     console.log('data: ' + JSON.stringify(data.data));
     user.test_score = JSON.stringify(data.data);
     const response = await this.couchDb.updateUser(user);

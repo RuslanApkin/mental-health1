@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
+import { Command, Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { CouchDbService } from '../couchdb/couchdb.service';
 import { Chat, User } from '../couchdb/types';
@@ -23,32 +23,62 @@ export class BotService {
   @Start()
   public async start(@Ctx() ctx: Context): Promise<void> {
     const chatId = ctx.message.chat.id;
-    const user = await this.getOrCreateUser(chatId);
+    await this.getOrCreateUser(chatId);
     const CLIENT_URL = this.configService.get('CLIENT_URL');
     await ctx.setChatMenuButton({
       text: 'Home',
       web_app: { url: CLIENT_URL },
       type: 'web_app',
     });
-    await ctx.reply(JSON.stringify(user.chatId), {
-      reply_markup: {
-        keyboard: [
-          [
-            {
-              text: 'Stress test',
-              web_app: {
-                url: `${CLIENT_URL}/form`,
+    await ctx.reply(
+      `Hello! I'm here to assist you in managing workplace stress. 
+Before we begin I recomend you to complete the test below so that I will know you better.
+Remember, it's important to prioritize your wellbeeing. 
+Let's navigate this together!`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: 'Take test',
+                web_app: {
+                  url: `${CLIENT_URL}/form`,
+                },
               },
-            },
+            ],
           ],
-        ],
+        },
       },
-    });
+    );
   }
 
-  @On('web_app_data')
-  public async onWebAppData(@Ctx() ctx: Context): Promise<void> {
-    console.log(JSON.stringify(ctx.webAppData.data));
+  @Command('test')
+  public async test(@Ctx() ctx: Context): Promise<void> {
+    const chatId = ctx.message.chat.id;
+    this.getOrCreateUser(chatId);
+    const CLIENT_URL = this.configService.get('CLIENT_URL');
+    await ctx.setChatMenuButton({
+      text: 'Home',
+      web_app: { url: CLIENT_URL },
+      type: 'web_app',
+    });
+    await ctx.reply(
+      `Complete a test below for me to know your current level of work stress.`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: 'Take test',
+                web_app: {
+                  url: `${CLIENT_URL}/form`,
+                },
+              },
+            ],
+          ],
+        },
+      },
+    );
   }
 
   @On('message')

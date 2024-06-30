@@ -8,6 +8,9 @@ export class CouchDbService {
   private readonly db: nano.DocumentScope<User>;
 
   constructor(private readonly configService: ConfigService) {
+    console.log(
+      `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@${this.configService.get('COUCHDB_URL')}`,
+    );
     const couch = nano(
       `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@${this.configService.get('COUCHDB_URL')}`,
     );

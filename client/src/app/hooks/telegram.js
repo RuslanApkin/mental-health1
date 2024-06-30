@@ -13,7 +13,7 @@ export const useTelegram = () => {
 	setHeaderColor("secondary_bg_color");
 
 	return {
-		user: initDataUnsafe?.user || {},
+		user: initDataUnsafe?.user,
 		chat,
 		ready,
 		close,

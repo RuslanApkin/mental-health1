@@ -19,5 +19,5 @@ EXPOSE 3000
 #
 # CMD ["nginx", "-g", "daemon off;"]
 
-CMD ["sh", "-c", "yarn start:dev"]
+CMD ["sh", "-c", "yarn start"]
 

@@ -1,8 +1,8 @@
-export const Outro = ({ formData }) => {
+export const Outro = () => {
 	return (
 		<div>
-			<h1>Bye2!</h1>
-			<span>{JSON.stringify(formData)}</span>
+			<h1>Thank you!</h1>
+			<span>Submit the form to update your account results</span>
 		</div>
 	);
 };

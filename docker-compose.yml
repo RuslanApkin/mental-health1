@@ -7,6 +7,7 @@ networks:
     name: proxy
   mynetwork:
     driver: bridge
+    name: mynetwork
 
 services:
   traefik:
@@ -15,7 +16,7 @@ services:
       - proxy
     command:
       - "--log.level=DEBUG"
-      - "--api.dashboard=true"
+      # - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=proxy"
@@ -32,9 +33,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
-      - "traefik.http.routers.api.service=api@internal"
-      - "traefik.http.routers.api.tls.certresolver=le"
+      # - "traefik.http.routers.api.rule=Host(`${TRAEFIK_SUBDOMAIN}.${DOMAIN}`)"
+      # - "traefik.http.routers.api.service=api@internal"
+      # - "traefik.http.routers.api.tls.certresolver=le"
 
   client:
     build: ./client
@@ -60,11 +61,36 @@ services:
       - proxy
     restart: on-failure
 
+  form:
+    build: ./mental-form-server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.rule=Host(`${FORM_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${FORM_SUBDOMAIN}.loadbalancer.server.port=${FORM_PORT}"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+    restart: on-failure
+
+  bot:
+    build: ./telegram-bot
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.rule=Host(`${BOT_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${BOT_SUBDOMAIN}.loadbalancer.server.port=${BOT_PORT}"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+      - mynetwork
+    restart: on-failure
+
   couchdb:
     image: couchdb:latest
     container_name: couchdb
-    ports:
-      - "5984:5984"
+    # ports:
+    #   - "5984:5984"
     volumes:
       - couchdb_data:/opt/couchdb/data
     environment:
@@ -73,6 +99,23 @@ services:
     networks:
       - mynetwork
 
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    # ports:
+    #   - "11434:11434"
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - mynetwork
+
 volumes:
   couchdb_data:
     driver: local
+  ollama:

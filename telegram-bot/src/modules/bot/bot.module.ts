@@ -4,7 +4,7 @@ import { BotService } from './bot.service';
 import { CouchDbModule } from '../couchdb/couchdb.module';
 import { EmotionsModule } from '../emotions/emotions.module';
 import { ConfigService } from '@nestjs/config';
-import { MistralModule } from '../mistral/mistral.module';
+import { ModelModule } from '../model/model.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { MistralModule } from '../mistral/mistral.module';
     }),
     CouchDbModule,
     EmotionsModule,
-    MistralModule,
+    ModelModule,
   ],
   providers: [BotService],
 })

@@ -3,11 +3,11 @@ import { useTelegram } from "../../app/hooks/telegram";
 import { Forbidden } from "../../pages/Forbidden";
 
 export const Telegram = ({ children }) => {
-	const { ready, user } = useTelegram();
+  const { ready, user } = useTelegram();
 
-	useEffect(() => {
-		ready();
-	}, [ready]);
+  useEffect(() => {
+    ready();
+  }, [ready]);
 
-	return <>{!user ? <Forbidden /> : children}</>;
+  return <>{!user ? <Forbidden /> : children}</>;
 };

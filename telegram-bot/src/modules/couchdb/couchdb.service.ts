@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nano from 'nano';
-import { IUser, User } from './types';
+import { User } from './types';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class CouchDbService {
 
   constructor(private readonly configService: ConfigService) {
     const couch = nano(
-      `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@localhost:5984`,
+      `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@${this.configService.get('COUCHDB_URL')}`,
     );
     couch.db.list().then((body) => {
       if (!body.includes('users')) couch.db.create('users');
@@ -17,8 +17,8 @@ export class CouchDbService {
     this.db = couch.db.use('users');
   }
 
-  public async createUser(user: IUser): Promise<User> {
-    const u = new User(user.chatId, user.emotions);
+  public async createUser(chatId: number): Promise<User> {
+    const u = new User(chatId);
     const response = await this.db.insert(u).then((response) => {
       u.processAPIResponse(response);
       return u;
@@ -27,7 +27,7 @@ export class CouchDbService {
   }
 
   public async getUserByChatId(chatId: number): Promise<User[]> {
-    const response = await this.db.find({ selector: { chatId } });
+    const response = await this.db.find({ selector: { chatId: chatId } });
     return response.docs;
   }
 

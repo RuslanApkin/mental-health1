@@ -8,6 +8,7 @@ export const useTelegram = () => {
 		BackButton,
 		themeParams,
 		chat,
+		sendData,
 	} = window.Telegram.WebApp;
 
 	setHeaderColor("secondary_bg_color");
@@ -20,5 +21,6 @@ export const useTelegram = () => {
 		MainButton,
 		BackButton,
 		themeParams,
+		sendData,
 	};
 };

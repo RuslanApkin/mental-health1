@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Loader } from "../../shared/Loader";
 
 function Page() {
-	const { MainButton, close, chat } = useTelegram();
+	const { MainButton, close, user } = useTelegram();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState();
 	const [status, setStatus] = useState();
@@ -21,8 +21,8 @@ function Page() {
 
 	useEffect(() => {
 		setLoading(true);
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/emotions/${chat?.id}`, {
-			method: "GET",
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/emotions/${user.id}`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -45,7 +45,7 @@ function Page() {
 				setError(error.message);
 				console.error(error.message);
 			});
-	}, [chat]);
+	}, [user]);
 
 	return (
 		<>

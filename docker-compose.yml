@@ -88,6 +88,8 @@ services:
     depends_on:
       - couchdb
       - ollama
+    env_file:
+      - ./telegram-bot/env/.production.env
 
   couchdb:
     image: couchdb:latest

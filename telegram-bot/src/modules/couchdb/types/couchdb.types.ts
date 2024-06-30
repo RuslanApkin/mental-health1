@@ -4,7 +4,7 @@ export interface IUser extends nano.MaybeDocument {
   chatId: number;
   emotions: string;
   chat: string;
-  test_score: number;
+  test_score: string;
 }
 
 export interface Emotions {
@@ -30,13 +30,13 @@ export class User implements IUser {
   public chatId: number;
   public emotions: string;
   public chat: string;
-  public test_score: number;
+  public test_score: string;
 
   constructor(
     chatId: number,
     emotions?: string,
     chat?: string,
-    test_score?: number,
+    test_score?: string,
   ) {
     this._id = undefined;
     this._rev = undefined;

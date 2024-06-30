@@ -27,9 +27,7 @@ export class CouchDbService {
   }
 
   public async getUserByChatId(chatId: number): Promise<User[]> {
-    console.log(chatId);
     const response = await this.db.find({ selector: { chatId: chatId } });
-    console.log(response);
     return response.docs;
   }
 

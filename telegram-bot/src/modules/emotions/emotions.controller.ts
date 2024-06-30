@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { Emotions } from '../couchdb/types';
 import { EmotionsService } from './emotions.service';
 
@@ -13,10 +6,10 @@ import { EmotionsService } from './emotions.service';
 export class EmotionsController {
   constructor(private readonly emotionsServcie: EmotionsService) {}
 
-  @Get(':id')
+  @Post(':id')
   public async getEmotionsByChatId(
     @Param('id') chatId: string,
-  ): Promise<{ emotions: Emotions; test_score: number }> {
+  ): Promise<{ emotions: Emotions; test_score: any }> {
     return await this.emotionsServcie.getEmotionsByChatId(Number(chatId));
   }
 }
@@ -28,14 +21,13 @@ export class ScoreController {
   @Post(':id')
   public async updateUserScoreByChatI(
     @Param('id') chatId: string,
-    @Body() body: { test_score: number },
-  ): Promise<string> {
+    @Body() body: any,
+  ): Promise<any> {
+    console.log('body: ' + JSON.stringify(body));
     const response = await this.emotionsServcie.updateUserScoreByChatId(
       Number(chatId),
-      body.test_score,
+      body,
     );
-    if (!response.ok)
-      throw new InternalServerErrorException('Cannot update user score');
-    return 'ok';
+    return response;
   }
 }

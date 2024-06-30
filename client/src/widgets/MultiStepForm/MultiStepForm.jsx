@@ -48,7 +48,7 @@ const MultiStepForm = () => {
 	const [isFormValid, setIsFormValid] = useState(true);
 	const [error, setError] = useState("");
 	const [response, setResponse] = useState(null);
-	const { MainButton, BackButton, close, themeParams } = useTelegram();
+	const { MainButton, BackButton, close, themeParams, chat } = useTelegram();
 	const [formData, setFormData] = useState({
 		age: "",
 		gender: 0,
@@ -88,13 +88,36 @@ const MultiStepForm = () => {
 					text: "Loading...",
 					color: COLORS.secondarySumbit,
 				});
-				setTimeout(() => {
-					MainButton.hideProgress().setParams({
-						text: "Submit",
-						color: COLORS.primarySumbit,
+				fetch(`${import.meta.env.VITE_BACKEND_URL}/score/${chat?.id}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formData),
+				})
+					.then((response) => {
+						if (response.ok) {
+							return response.json();
+						} else {
+							throw new Error(`Error: ${response.status}`);
+						}
+					})
+					.then((data) => {
+						MainButton.hideProgress().setParams({
+							text: "Submit",
+							color: COLORS.primarySumbit,
+						});
+						setResponse({ ok: true, data });
+						console.log(data);
+					})
+					.catch((error) => {
+						MainButton.hideProgress().setParams({
+							text: "Submit",
+							color: COLORS.primarySumbit,
+						});
+						setResponse({ ok: false });
+						console.error(error.message);
 					});
-					setResponse({ ok: false });
-				}, 600);
 			} else if (isFormValid) {
 				setStep((prev) => prev + 1);
 			}
@@ -113,7 +136,7 @@ const MultiStepForm = () => {
 			MainButton.offClick(handleMainButtonClick);
 			BackButton.offClick(handleBackButtonClick);
 		};
-	}, [step, isFormValid, response, MainButton, BackButton, close]);
+	}, [step, isFormValid, response, MainButton, BackButton, close, chat]);
 
 	useEffect(() => {
 		MainButton.show();
@@ -182,7 +205,7 @@ const MultiStepForm = () => {
 					</div>
 				</>
 			) : response.ok ? (
-				<Success />
+				<Success response={response} />
 			) : (
 				<InternalError />
 			)}

@@ -1,107 +1,120 @@
 version: "3.8"
 
 networks:
-    proxy:
-        driver: overlay
-        attachable: true
-        name: proxy
-    mynetwork:
-        driver: bridge
+  proxy:
+    driver: overlay
+    attachable: true
+    name: proxy
+  mynetwork:
+    driver: bridge
 
 services:
-    traefik:
-        image: traefik:v2.4
-        networks:
-            - proxy
-        command:
-            - "--log.level=DEBUG"
-            - "--api.dashboard=true"
-            - "--providers.docker=true"
-            - "--providers.docker.exposedbydefault=false"
-            - "--providers.docker.network=proxy"
-            - "--entrypoints.websecure.address=:443"
-            - "--certificatesresolvers.le.acme.tlschallenge=true"
-            - "--certificatesresolvers.le.acme.email=${EMAIL}"
-            - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-        ports:
-            - "80:80"
-            - "443:443"
-            - "8080:8080"
-        volumes:
-            - "./letsencrypt:/letsencrypt"
-            - "/var/run/docker.sock:/var/run/docker.sock:ro"
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.api.rule=Host(`${TRAEFIK_SUBDOMAIN}.${DOMAIN}`)"
-            - "traefik.http.routers.api.service=api@internal"
-            - "traefik.http.routers.api.tls.certresolver=le"
+  traefik:
+    image: traefik:v2.4
+    networks:
+      - proxy
+    command:
+      - "--log.level=DEBUG"
+      # - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      # - "traefik.http.routers.api.rule=Host(`${TRAEFIK_SUBDOMAIN}.${DOMAIN}`)"
+      # - "traefik.http.routers.api.service=api@internal"
+      # - "traefik.http.routers.api.tls.certresolver=le"
 
-    client:
-        build: ./client
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.rule=Host(`${CLIENT_SUBDOMAIN}.${DOMAIN}`)"
-            - "traefik.http.services.${CLIENT_SUBDOMAIN}.loadbalancer.server.port=${CLIENT_PORT}"
-            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.entrypoints=websecure"
-            - "traefik.http.routers.${CLIENT_SUBDOMAIN}.tls.certresolver=le"
-        networks:
-            - proxy
-        restart: on-failure
+  client:
+    build: ./client
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CLIENT_SUBDOMAIN}.rule=Host(`${CLIENT_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${CLIENT_SUBDOMAIN}.loadbalancer.server.port=${CLIENT_PORT}"
+      - "traefik.http.routers.${CLIENT_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${CLIENT_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+    restart: on-failure
 
-    bert:
-        build: ./bert
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.${BERT_SUBDOMAIN}.rule=Host(`${BERT_SUBDOMAIN}.${DOMAIN}`)"
-            - "traefik.http.services.${BERT_SUBDOMAIN}.loadbalancer.server.port=${BERT_PORT}"
-            - "traefik.http.routers.${BERT_SUBDOMAIN}.entrypoints=websecure"
-            - "traefik.http.routers.${BERT_SUBDOMAIN}.tls.certresolver=le"
-        networks:
-            - proxy
-        restart: on-failure
+  bert:
+    build: ./bert
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${BERT_SUBDOMAIN}.rule=Host(`${BERT_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${BERT_SUBDOMAIN}.loadbalancer.server.port=${BERT_PORT}"
+      - "traefik.http.routers.${BERT_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${BERT_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+    restart: on-failure
 
-    form:
-        build: ./mental-form-server
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.${FORM_SUBDOMAIN}.rule=Host(`${FORM_SUBDOMAIN}.${DOMAIN}`)"
-            - "traefik.http.services.${FORM_SUBDOMAIN}.loadbalancer.server.port=${FORM_PORT}"
-            - "traefik.http.routers.${FORM_SUBDOMAIN}.entrypoints=websecure"
-            - "traefik.http.routers.${FORM_SUBDOMAIN}.tls.certresolver=le"
-        networks:
-            - proxy
-        restart: on-failure
+  form:
+    build: ./mental-form-server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.rule=Host(`${FORM_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${FORM_SUBDOMAIN}.loadbalancer.server.port=${FORM_PORT}"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${FORM_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+    restart: on-failure
 
-    couchdb:
-        image: couchdb:latest
-        container_name: couchdb
-        ports:
-            - "5984:5984"
-        volumes:
-            - couchdb_data:/opt/couchdb/data
-        environment:
-            - COUCHDB_USER=${COUCHDB_USER}
-            - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
-        networks:
-            - mynetwork
+  bot:
+    build: ./telegram-bot
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.rule=Host(`${BOT_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${BOT_SUBDOMAIN}.loadbalancer.server.port=${BOT_PORT}"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${BOT_SUBDOMAIN}.tls.certresolver=le"
+    networks:
+      - proxy
+      - mynetwork
+    restart: on-failure
 
-    ollama:
-        image: ollama/ollama:latest
-        volumes:
-            - ollama:/root/.ollama
-        ports:
-            - "11434:11434"
-        container_name: ollama
-        pull_policy: always
-        tty: true
-        restart: always
-        environment:
-            - OLLAMA_KEEP_ALIVE=24h
-            - OLLAMA_HOST=0.0.0.0
-        networks:
-            - mynetwork
+  couchdb:
+    image: couchdb:latest
+    container_name: couchdb
+    # ports:
+    #   - "5984:5984"
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    networks:
+      - mynetwork
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    # ports:
+    #   - "11434:11434"
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - mynetwork
 
 volumes:
-    couchdb_data:
-        driver: local
-    ollama:
+  couchdb_data:
+    driver: local
+  ollama:

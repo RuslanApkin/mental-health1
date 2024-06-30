@@ -30,8 +30,8 @@ export class EmotionsService {
     if (users.length === 0) throw new Error('User not found');
     const user = users[0];
     return {
-      emotions: JSON.parse(user.emotions),
-      test_score: JSON.parse(user.test_score),
+      emotions: user.emotions ? JSON.parse(user.emotions) : '',
+      test_score: user.emotions ? JSON.parse(user.test_score) : '',
     };
   }
 

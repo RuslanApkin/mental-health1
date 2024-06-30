@@ -9,7 +9,7 @@ export class CouchDbService {
 
   constructor(private readonly configService: ConfigService) {
     const couch = nano(
-      `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@localhost:5984`,
+      `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@${this.configService.get('COUCHDB_URL')}`,
     );
     couch.db.list().then((body) => {
       if (!body.includes('users')) couch.db.create('users');

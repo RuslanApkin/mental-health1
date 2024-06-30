@@ -7,8 +7,12 @@ app = FastAPI()
 
 model = joblib.load('./model/model.pkl')
 
+@app.get("/")
+async def root():
+    return {"message": "Hello, Form"}
+
 class InputData(BaseModel):
-    age: str
+    age: int
     gender: int
     self_employed: int
     family_history: int
@@ -47,7 +51,7 @@ def predict(data: InputData):
         probabilities = model.predict_proba(input_features)
 
         return {
-            "prediction": int(prediction[0]),
+            "prediction": 0 if int(prediction[0]) == 0 else 1,
             "probabilities": probabilities.tolist()
         }
     except Exception as e:

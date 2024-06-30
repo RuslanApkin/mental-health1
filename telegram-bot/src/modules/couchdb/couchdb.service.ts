@@ -11,9 +11,6 @@ export class CouchDbService {
     const couch = nano(
       `http://${this.configService.get('COUCHDB_USER')}:${this.configService.get('COUCHDB_PASSWORD')}@${this.configService.get('COUCHDB_URL')}`,
     );
-    couch.db.list().then((body) => {
-      if (!body.includes('users')) couch.db.create('users');
-    });
     this.db = couch.db.use('users');
   }
 

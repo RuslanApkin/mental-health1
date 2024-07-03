@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { Ollama } from 'ollama';
 
 const MODEL_SYSTEM = `# Character
@@ -25,6 +26,31 @@ const MODEL_SYSTEM = `# Character
 	- Encourage the user to talk to their human resources department if they are experiencing bullying or harassment.
 `;
 
+//@Injectable()
+//export class ModelService {
+//  private readonly ollama: Ollama;
+//  constructor(private readonly configService: ConfigService) {
+//    this.ollama = new Ollama({ host: this.configService.get('MODEL_URL') });
+//    this.ollama.chat({ model: this.configService.get('MODEL') }); // preload the model
+//  }
+//  public async getResponse(
+//    chat: Array<{ role: string; content: string }>,
+//  ): Promise<string> {
+//    console.log(JSON.stringify(chat));
+//
+//    const response = await this.ollama.chat({
+//      model: this.configService.get('MODEL'),
+//      messages: [{ role: 'system', content: MODEL_SYSTEM }, ...chat],
+//      stream: false,
+//      options: { temperature: 0.9, num_ctx: 512 },
+//    });
+//
+//    console.log(JSON.stringify(response));
+//
+//    return response.message.content;
+//  }
+//}
+
 @Injectable()
 export class ModelService {
   private readonly ollama: Ollama;
@@ -35,17 +61,63 @@ export class ModelService {
   public async getResponse(
     chat: Array<{ role: string; content: string }>,
   ): Promise<string> {
-    console.log(JSON.stringify(chat));
+    const token = await this.getAuth();
 
-    const response = await this.ollama.chat({
-      model: this.configService.get('MODEL'),
+    const data = JSON.stringify({
+      model: 'GigaChat',
       messages: [{ role: 'system', content: MODEL_SYSTEM }, ...chat],
       stream: false,
-      options: { temperature: 0.9, num_ctx: 512 },
+      max_tokens: 512,
     });
 
-    console.log(JSON.stringify(response));
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      data: data,
+    };
 
-    return response.message.content;
+    let message: string;
+    axios(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        message = response.data.choices[0].message;
+      })
+      .catch((error) => {
+        throw new InternalServerErrorException(JSON.stringify(error));
+      });
+    return message;
+  }
+
+  private async getAuth(): Promise<string> {
+    const expires = this.configService.get('GIGACHAT_EXPIERS');
+    if (expires && new Date(expires - 1000) > new Date()) {
+      return this.configService.get('GIGACHAT_TOKEN');
+    }
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: 'Basic ' + this.configService.get('GIGACHAT_AUTH'),
+      },
+    };
+
+    axios(config)
+      .then((response) => {
+        this.configService.set('GIGACHAT_TOKEN', response.data.access_token);
+        this.configService.set('GIGACHAT_EXPIERS', response.data.expiers_at);
+        return this.configService.get('GIGACHAT_TOKEN');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 }

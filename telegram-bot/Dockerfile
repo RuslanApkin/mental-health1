@@ -4,6 +4,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
+# Add certs
+ADD ./certs/russian_trusted_root_ca_pem.crt /usr/local/share/ca-certificates/ca_root.crt
+ADD ./certs/russian_trusted_sub_ca_pem.crt /usr/local/share/ca-certificates/ca_sub.crt
+RUN apt-get install -y ca-certificates -y && update-ca-certificates
+
 # Install Yarn
 RUN npm install -g --force yarn
 

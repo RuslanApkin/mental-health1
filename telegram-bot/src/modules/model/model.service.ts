@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { randomUUID } from 'crypto';
 import { Ollama } from 'ollama';
 
 const MODEL_SYSTEM = `# Character
@@ -99,6 +100,7 @@ export class ModelService {
     if (expires && new Date(expires - 1000) > new Date()) {
       return this.configService.get('GIGACHAT_TOKEN');
     }
+    const rqUID = randomUUID();
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
@@ -106,6 +108,7 @@ export class ModelService {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
+        RqUID: rqUID,
         Authorization: 'Basic ' + this.configService.get('GIGACHAT_AUTH'),
       },
     };
